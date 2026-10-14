@@ -91,7 +91,7 @@ class Phc2SysRunningState(State):
 
     """
 
-    message_re = r"\[(?P<monotonic_time_s>[0-9]+\.[0-9]+)\]\s+(?P<message>.*)\s*$"
+    message_re = r"(?:phc2sys)?\[(?P<monotonic_time_s>[0-9]+\.[0-9]+)\](?::)?\s+(?P<message>.*)\s*$"
     offset_re = r"(?P<dst_clock>\w+)\s+(?P<src_clock_type>\w+)\s+offset\s+(?P<offset_ns>[+-]?\d+)\s+s(?P<servo_state>[0-3])\s+freq\s+(?P<freq_offset_ppb>[+-]?\d+)(?:\s+delay\s+(?P<delay_ns>[+-]?\d+))?"
 
     config: Phc2SysConfig
