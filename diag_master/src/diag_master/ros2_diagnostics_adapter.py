@@ -26,6 +26,20 @@ from sync_tooling_msgs.diag_tree_pb2 import DiagTree
 from sync_tooling_msgs.ok_pb2 import Ok
 
 
+def _diagnostic_clock_name(clock_id: ClockId) -> str:
+    """Return the `/diagnostics` status name for a clock.
+
+    Host clocks replace the dot separator with an underscore so the name matches
+    diagnostic graph entries such as `main_ptp0` and `TE-2000_sys`. Sensor IDs and
+    raw PTP clock IDs keep the form produced by `readable_clock_id`.
+    """
+    name = readable_clock_id(clock_id)
+    kind = clock_id.WhichOneof("id")
+    if kind in {"system_clock_id", "linux_clock_device_id", "interface_id"}:
+        return name.replace(".", "_")
+    return name
+
+
 def _get_message(diag_status: DiagStatus | str) -> str:
     """Extract the message string from a diagnostic status."""
     if isinstance(diag_status, str):
@@ -145,7 +159,8 @@ class Ros2DiagnosticsAdapter:
 
         ros_status.hardware_id = Ros2DiagnosticsAdapter.HARDWARE_ID
         # Even if the canonical ID might be different, output diagnostics using the clock ID as
-        # provided in the reference graph for easier understandability
-        ros_status.name = readable_clock_id(clock_id)
+        # provided in the reference graph for easier understandability.
+        # Host clocks use underscores (`main_ptp0`) so the name matches the diagnostic graph.
+        ros_status.name = _diagnostic_clock_name(clock_id)
 
         return ros_status
